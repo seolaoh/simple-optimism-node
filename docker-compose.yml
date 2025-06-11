@@ -31,7 +31,43 @@ services:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:v1.101511.0
     restart: unless-stopped
     stop_grace_period: 5m
-    entrypoint: /scripts/start-op-geth.sh
+    entrypoint:
+      - /usr/local/bin/geth
+      - --ws
+      - --ws.port=8546
+      - --ws.addr=0.0.0.0
+      - --ws.origins
+      - "*"
+      - --ws.api
+      - "debug,eth,txpool,net,engine,web3"
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.api
+      - "web3,debug,eth,txpool,net,engine"
+      - --http.port=8545
+      - --http.vhosts
+      - "*"
+      - --http.corsdomain
+      - "*"
+      - --gcmode=full
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.jwtsecret=/shared/jwt.txt
+      - --authrpc.port=8551
+      - --authrpc.vhosts
+      - "*"
+      - --datadir=/data
+      - --rollup.disabletxpoolgossip=true
+      - --rollup.sequencerhttp=https://sepolia-sequencer.optimism.io
+      - --syncmode=snap
+      - --port=39393
+      - --discovery.port=39393
+      - --db.engine=pebble
+      - --state.scheme=hash
+      - --op-network=op-sepolia
+      - --metrics
+      - --metrics.influxdb
+      - --metrics.influxdb.endpoint=http://influxdb:8086
+      - --metrics.influxdb.database=opgeth
     env_file:
       - ./envs/${NETWORK_NAME}/op-geth.env
       - .env
